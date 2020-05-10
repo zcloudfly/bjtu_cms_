@@ -1,0 +1,13 @@
+<form id="categoryForm" method="post" action="../saveCategory">
+    <input type="hidden" name="id" value="{{  category.id}}">
+    <table>
+         <tr>
+             <td><label>栏目代码：</label></td>
+             <td><input  class="easyui-validatebox" data-options="required:true" type="text" name="type" value="{{ category.type }}"></td>
+         </tr>
+         <tr>
+            <td><label>栏目名称：</label></td>
+            <td><input class="easyui-validatebox" data-options="required:true" type="text" name="type_name" value="{{ category.type_name}}"></td>
+        </tr>
+    </table>
+</form>

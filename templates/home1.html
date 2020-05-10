@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>招生系统</title>
+    <link rel="stylesheet" type="text/css" href="../static/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../static/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="../static/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="../static/themes/demo.css">
+    <script type="text/javascript" src="../static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="../static/js/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="../static/myjs/common.js"></script>
+    <style type="text/css">
+        a{
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body style="background: #f8f8f8;">
+    <div id="cc" class="easyui-layout" style="width:600px;height:400px;">
+        <div data-options="region:'north'" style="position:relative;height:230px;width:80%;background :url(../static/imge/slide1.jpg);"">
+
+        </div>
+        <div data-options="region:'south',title:'South Title',split:true" style="height:100px;"></div>
+        <div data-options="region:'east',iconCls:'icon-reload',title:'East',split:true" style="width:100px;"></div>
+        <div data-options="region:'west',title:'West',split:true" style="width:100px;"></div>
+        <div data-options="region:'center',title:'center title'" style="padding:5px;background:#eee;"></div>
+    </div>
+
+
+
+
+
+
+ {% comment %} <script>
+      $(document).ready(function(){
+          //默认每页条数
+          PAGESIZE=10;
+          $('#mm').menu({
+            onClick:function(item){
+                if(item.name=='ctime'){
+                   $('#sdiv input')[1].setAttribute('placeholder','2019-02-24');
+                }else{
+                   $('#sdiv input')[1].setAttribute('placeholder','请输入值');
+                }
+            }
+          });
+         //搜索框
+           $('#ss').searchbox({
+            searcher:function(value,name){
+                var searchContent=value;
+                if(name=='category_id'){
+                   value=getMapKey(categoryMap,value);
+                   if(value==''){
+                       $.messager.alert('提醒','没有此类型文章！');
+                   }
+                }
+                var m={};
+                m[name]=value;
+               toCategory('',1,PAGESIZE,'搜索"'+searchContent+'"',m);
+            },
+            menu:'#mm',
+            prompt:'请输入值'
+        });
+
+        //首次进入网页加载默认列表
+        var cid=$('#p a ')[0].id;
+        var cname=$('#p #type_name')[0].innerHTML;
+        toCategory(cid,1,PAGESIZE,cname,null);
+      });
+      //加载文章列表
+     function toCategory(id,curPage,pageSize,typename,param) {
+         $('.panel-title')[1].innerHTML='招生工作'+'>>'+typename;
+         $('#list').show();
+         $('#theTemplate').hide();
+         if(id==''){
+             url="../getItem?curPage="+curPage+"&pageSize="+pageSize;
+         }else{
+             url="../categroydetail?curPage="+curPage+"&pageSize="+pageSize+"&cid="+id;
+         }
+         $.ajax({
+             url:url,
+             type:'GET',
+             data:param,
+             dataType:'json',
+             success: function(ret){
+                 //console.log(ret);
+                 var totalSize=ret.totalSize ;
+                 var curPage=ret.curPage;
+                 var data=eval(ret.data);
+                 //console.log(data);
+                 //var str='';
+                 $('#dg').datagrid({
+                     data: data,
+                     columns:[[
+                        {field:'id',title:'id',hidden:true},
+                        {field:'title',title:'title',width:640,
+                            formatter: function(value,row,index){
+                                return '<li><a href="#" id='+row.id+' name='+typename+' onclick=toDetail(id,name)>'+value+'</a></li>';
+                            }
+                        },
+                        {field:'ctime',title:'ctime'}]],
+                    striped:true,
+                    showHeader:false,
+
+                });
+                 //去掉边框
+                 var tr=$('.datagrid-body').find('tr');
+                 tr.each(function () {
+                     var td=$(this).children('td');
+                     td.css({
+                        "border-width":"0"
+                     });
+                 });
+                 //分页
+                 $('#pp').pagination({
+                     total:totalSize,
+                     pageSize:pageSize,
+                     pageNumber:curPage,
+                     pageList: [pageSize],
+                     onSelectPage:function(pageNumber, pageSize) {
+                          toCategory(id,pageNumber,pageSize,typename,null);
+                      }
+                 });
+             }
+         });
+     }
+     //进入item详情
+     function toDetail(id,typename){
+         console.log(id+'-'+typename)
+         $('.panel-title')[1].innerHTML='招生工作'+'>>'+typename+'>>详情';
+         $.ajax({
+             url:"../getItemById",
+             type:'POST',
+             data:{'id':id},
+             dataType:'json',
+             success: function(ret){
+                 $('#list').hide();
+                 $('#title').html(ret.title);
+                 $('#ctime').html('['+ret.ctime+']');
+                 $('#content').html('&nbsp&nbsp&nbsp&nbsp'+ret.content);
+                 $('#theTemplate').show();
+             }
+         });
+     }
+     function showDialog() {
+         $('#dialog').dialog({
+        title: '登录',
+        width: 270,
+        height: 150,
+        closed: false,
+        cache: false,
+        modal: true,
+        buttons:[{
+				text:'登录',
+				handler:function(){
+                    login();
+                }
+			},{
+				text:'取消',
+				handler:function(){
+				    $('#dialog').dialog('close');
+                }
+			}]
+
+    });
+    }
+    function login() {
+         //$('#login').form('submit',{
+        $.ajax({
+             async : false,
+            type:'post',
+             url:'../login',
+             data:$('#login').serialize(),
+            success:function(data){
+                data=JSON.parse(data);
+                 $.messager.alert('提示',data.msg);
+                if(data.status=='OK'){
+                    //console.log(document.cookie,'bbb');
+                    $('#userName').html(data.data);
+                    $('#dialog').dialog('close');
+
+                }
+            }
+        });
+    }
+    $('#btn').click(function () {
+
+        var usr=$('#userName').html();
+        if(usr=='登录'){
+            $.messager.alert('提示','请先登录,谢谢~');
+        }else{
+           $.ajax({
+               url:'../getUserbyName',
+               type:'post',
+               data:{'name':usr},
+               dataType:'json',
+               success: function(ret){
+                   if(ret.status=='OK'){
+                       //window.open('../gotoManagerPage/');
+                       window.location.href='../gotoManagerPage/';
+                   }else{
+                       $.messager.alert('提示','请使用管理员权限登录！');
+                   }
+               }
+           });
+
+        }
+    });
+  </script>{% endcomment %}
+</body>
+</html>

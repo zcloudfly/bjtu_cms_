@@ -1,0 +1,89 @@
+<table id="usergd" class="easyui-datagrid" style="width:798px;height:250px"
+        data-options="url:'../getUser',fitColumns:true,singleSelect:true, rownumbers:true">
+    <thead>
+        <tr>
+            <th data-options="field:'id',width:100,hidden:true">ID</th>
+            <th data-options="field:'name',width:100">姓名</th>
+            <th data-options="field:'role',width:100">角色</th>
+            <th data-options="field:'ctime',width:100">创建时间</th>
+        </tr>
+    </thead>
+</table>
+
+<div id="utb" style="">
+    <a onclick="tosaveUser()" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">添加</a>
+    <a onclick="deleteUser();" class="easyui-linkbutton" data-options="iconCls:'icon-cut',plain:true">删除</a>
+
+</div>
+<div id="udialog"></div>
+<script>
+     $('#usergd').datagrid({
+        toolbar: '#utb',
+    });
+      function showDialog(url,title) {
+         $('#udialog').dialog({
+        title: title,
+        width: 400,
+        height: 200,
+        closed: false,
+        cache: false,
+        href: url,//'../toEditCategory?id='+id,
+        modal: true,
+        buttons:[{
+				text:'保存',
+				handler:function(){
+                    saveUser();
+                }
+			},{
+				text:'关闭',
+				handler:function(){
+				    $('#udialog').dialog('close');
+                }
+			}]
+    });
+    }
+     //添加dialog
+    function tosaveUser() {
+       showDialog('../editUserPage','添加');
+    }
+    //保存
+    function saveUser() {
+         $('#userForm').form('submit',{
+            success:function(data){
+                data=JSON.parse(data);
+                 $.messager.alert('提示',data.msg);
+                if(data.status=='OK'){
+                     $('#udialog').dialog('close');
+                     $('#usergd').datagrid('reload')
+                }
+            }
+        });
+    }
+     //删除
+    function deleteUser(){
+         var row=$('#usergd').datagrid('getSelected');
+         if(row){
+             $.messager.confirm('确认','您确认想要删除记录吗？',function(r){
+                if (r){
+                     id=row.id;
+                     $.ajax({
+                         url:'../deleteUser',
+                         type:'GET',
+                         data:{'id':id},
+                         dataType:'json',
+                         success: function(ret){
+                             if(ret.status=='OK'){
+                                  $.messager.alert('提醒',ret.msg);
+                                  $('#usergd').datagrid('reload')
+                             }else{
+                                 $.messager.alert('提醒','删除失败');
+                             }
+                         }
+                     });
+                     }
+             });
+        }else{
+            $.messager.alert('提醒','请选择一行！');
+        }
+    }
+</script>

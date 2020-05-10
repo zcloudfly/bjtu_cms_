@@ -1,0 +1,159 @@
+<script type="text/javascript" src="../static/myjs/common.js"></script>
+<table id="itemList" >
+
+</table>
+<div id="pp" ></div>
+
+
+
+<div id="tb" style="">
+    <a onclick="toDetail()" class="easyui-linkbutton" data-options="iconCls:'icon-more',plain:true">查看</a>
+    <a onclick="toeditItem()" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">编辑</a>
+    <a onclick="tosaveItem()" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">添加</a>
+    <a onclick="deleteItemBykey();" class="easyui-linkbutton" data-options="iconCls:'icon-cut',plain:true">删除</a>
+    <div id='sdiv' style="float: right"><input type="text" style="width:300px" id="ss"/></div>
+    <div id="mm" style="width:120px">
+        <div data-options="name:'title',iconCls:'icon-ok'">标题</div>
+        <div data-options="name:'ctime'" >创建日期</div>
+        <div data-options="name:'category_id'">类别</div>
+    </div>
+</div>
+<script>
+
+     PAGESIZE=5;
+    $('#mm').menu({
+        onClick:function(item){
+            if(item.name=='ctime'){
+               $('#sdiv input')[1].setAttribute('placeholder','2019-02-24');
+            }else{
+               $('#sdiv input')[1].setAttribute('placeholder','请输入值');
+            }
+        }
+    });
+    //默认加载列表
+    getItem(1,5,{});
+
+    $('#ss').searchbox({
+        searcher:function(value,name){
+            if(name=='category_id'){
+                   value=getMapKey(categoryMap,value);
+                   if(value==''){
+                       $.messager.alert('提醒','没有此类型文章！');
+                   }
+                }
+            var m={};
+            m[name]=value;
+           getItem(1,PAGESIZE,m);
+        },
+        menu:'#mm',
+        prompt:'请输入值'
+    });
+
+
+    function getItem(curPage,pageSize,param) {
+        $.ajax({
+            url: "../getItem?curPage="+curPage+"&pageSize="+pageSize,
+            type: 'GET',
+            data: param ,
+            dataType: 'json',
+            success: function (ret) {
+                var totalSize = ret.totalSize;
+                var curPage = ret.curPage;
+                var data = eval(ret.data);
+                $('#itemList').datagrid({
+                    data: data,
+                    toolbar: '#tb',
+                    rownumbers:true,
+                    width:798,
+                    fitColumns:true,
+                    singleSelect:true,
+                    columns:[[
+                        {field:'id',hidden:true,width:100},
+                        {field:'title',title:'标题',width:100},
+                        {field:'category_id',title:'类别',
+                                formatter: function(value,row,index){
+                                    return getMapValue(categoryMap,value);
+                                }},
+
+                        {field:'creator_name',title:'发布者'},
+                        {field:'status',title:'状态',
+                                 formatter: function(value,row,index){
+                                     return (value=='1'?'已发布':'未发布');
+                                 }},
+                        {field:'ctime',title:'创建时间',width:100},
+                        {field:'utime',title:'修改时间',width:100}
+                        ]]
+
+                });
+
+                 //分页
+                 $('#pp').pagination({
+                     total:totalSize,
+                     pageSize:PAGESIZE,
+                     pageNumber:curPage,
+                     pageList: [PAGESIZE],
+                     onSelectPage:function(pageNumber, pageSize) {
+                          getItem(pageNumber, pageSize,param);
+                      }
+                 });
+
+            }
+        });
+    }
+
+   //详情
+    function toDetail() {
+        var row=$('#itemList').datagrid('getSelected');
+        if(row){
+             id=row.id;
+             addTab(row.title,'../getItemByIdPage?id='+id);
+             $('#theTemplate').show();
+        }else{
+            $.messager.alert('提醒','请选择一行！');
+        }
+    }
+    //添加
+    function tosaveItem() {
+        addTab('添加','../toEditItem/');
+    }
+    //编辑
+    function toeditItem() {
+        var row=$('#itemList').datagrid('getSelected');
+        if(row){
+             id=row.id;
+             addTab('编辑','../toEditItem/?id='+id);
+        }else{
+            $.messager.alert('提醒','请选择一行！');
+        }
+    }
+    //删除
+    function deleteItemBykey(){
+         var row=$('#itemList').datagrid('getSelected');
+         if(row){
+             $.messager.confirm('确认','您确认想要删除记录吗？',function(r){
+                if (r){
+                     id=row.id;
+                     $.ajax({
+                         url:'../deleteItemBykey',
+                         type:'GET',
+                         data:{'id':id},
+                         dataType:'json',
+                         success: function(ret){
+                             if(ret.status=='OK'){
+                                  $.messager.alert('提醒',ret.msg);
+                                  var tab1 = $('#tt').tabs('getSelected');
+                                 //刷新
+                                  tab1.panel('refresh');
+                             }else{
+                                 $.messager.alert('提醒','删除失败');
+                             }
+                         }
+                     });
+                     }
+             });
+        }else{
+            $.messager.alert('提醒','请选择一行！');
+        }
+    }
+</script>
+

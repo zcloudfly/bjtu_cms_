@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>后台管理系统</title>
+    <link rel="stylesheet" type="text/css" href="../../static/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../../static/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="../../static/themes/color.css">
+    <script type="text/javascript" src="../../static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="../../static/js/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="../../static/js/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+    <div id="cc" class="easyui-layout" style="width:1000px;height:900px;margin: 0 auto;">
+        <div data-options="region:'north'" style="height:239px;background: url(../../static/imge/mtop.png)"></div>
+        <div data-options="region:'west',title:'菜单列表',split:true" style="width:200px;">
+            <div id="aa" class="easyui-accordion" style="width:193px;height:629px;">
+                <div title="用户管理" data-options="iconCls:'icon-man'" style="overflow:auto;padding:10px;">
+                    <li><a id='../toUserGride' title="用户列表" onclick="addTab(title,id)">用户列表</a></li>
+                </div>
+                <div title="栏目管理" data-options="iconCls:'icon-filter'" style="padding:10px;">
+                    <li><a id='../toCategoryGride' title="栏目维护" onclick="addTab(title,id)">栏目维护</a></li>
+                </div>
+                <div title="信息管理"  data-options="iconCls:'icon-xinxi',selected:true"  style="overflow:auto;padding:10px;">
+                    <li><a id='../toItemGride' title="信息列表" onclick="addTab(title,id)">信息列表</a></li>
+                    <li><a id='../toEditItem/' title="信息发布" onclick="addTab(title,id)">信息发布</a></li>
+                </div>
+            </div>
+        </div>
+        <div data-options="region:'center'" style="background:#eee;height:661px">
+            <div id="tt" class="easyui-tabs" style="width:800px;height:642px;position: relative">
+
+             </div>
+        </div>
+    </div>
+
+
+    <script>
+    $(document).ready(function(){
+         addTab('信息列表','../toItemGride')
+    });
+    function addTab(tabName,url) {
+        var tab=$('#'+tabName);
+        if(tab.length==0) {
+            $('#tt').tabs('add', {
+                id: tabName,
+                title: tabName,
+                href: url,
+                closable: true,
+                tools: [{
+                    iconCls: 'icon-mini-refresh',
+                    handler: function () {
+                         var tab = $('#tt').tabs('getSelected');
+                         //刷新
+                         tab.panel('refresh');
+                    }
+                }]
+            });
+        }else{
+            $('#tt').tabs('select', tabName);
+        }
+    }
+
+    </script>
+</body>
+</html>

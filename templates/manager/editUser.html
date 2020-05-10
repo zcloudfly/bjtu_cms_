@@ -1,0 +1,20 @@
+<form id="userForm" method="post" action="../saveUser">
+    <input type="hidden" name="id" value="{{  category.id}}">
+    <table>
+         <tr>
+             <td><label>用户名：</label></td>
+             <td><input  class="easyui-validatebox" data-options="required:true" type="text" name="name" value="{{ category.type }}"></td>
+         </tr>
+         <tr>
+            <td><label>密码：</label></td>
+            <td><input class="easyui-validatebox" data-options="required:true" type="text" name="pwd" value="{{ category.type_name}}"></td>
+        </tr>
+        <tr>
+            <td><label>角色</label></td>
+            <td><select  class="easyui-combobox" name="role" style="width:150px;">
+                <option value="管理员">管理员</option>
+                <option value="普通用户">普通用户</option>
+            </select></td>
+        </tr>
+    </table>
+</form>

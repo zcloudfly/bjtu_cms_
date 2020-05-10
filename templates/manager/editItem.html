@@ -1,0 +1,69 @@
+<div style="text-align: center;width:750px;height:600px; position: relative">
+<div style="position: absolute;left: 20%;top:5%">
+<form id="itemForm" method="post"  >
+    <input type="hidden" name="id" value="{{ item.id }}">
+
+    <table >
+        <tr style="text-align: left">
+            <td>
+                <label for="title">标题:</label>
+                <input class="easyui-validatebox" type="text" name="title" data-options="required:true" value="{{ item.title }}"/>
+            </td>
+        </tr>
+        <tr style="text-align: left">
+            <td>
+            <label for="category_id">栏目:</label>
+                <input id="cc" class="easyui-combobox" name="category_id"
+                 data-options="valueField:'id',textField:'type_name',url:'../category_list'" />
+            </td>
+        </tr>
+        <tr style="text-align: left">
+            <td>
+                <div style="margin-bottom:20px" data-toggle="topjui-radio">
+                    <label for="status">状态:</label>
+                    <input class="easyui-radio" type="radio" name="status" data-options="required:true" value="1">发布
+                    <input class="easyui-radio" type="radio" name="status" data-options="required:true" value="0">不发布
+            </div></td>
+         </tr>
+
+        <tr style="text-align: left">
+            <td>
+                 内容:<br>&nbsp&nbsp&nbsp&nbsp&nbsp
+                <textarea style="width: 400px;height: 400px" class="easyui-validatebox" type="text" name="content" data-options="required:true" >{{ item.content }}</textarea>
+            </td>
+        </tr>
+        <tr style="text-align: right">
+            <td>
+            <button type="button"  onclick="sub()">保存</button>
+            </td>
+        </tr>
+        </table>
+
+</form>
+    </div>
+</div>
+<script>
+
+    //编辑和保存动作
+    function sub() {
+        $('#itemForm').form('submit', {
+            url:'../saveItem',
+            success:function(data){
+                data=JSON.parse(data);
+                $.messager.alert('提示',data.msg);
+                if(data.status=='OK') {
+                    //获取当前tab
+                    var tab = $('#tt').tabs('getSelected');
+                    //获取当前tab的位置
+                    var index = $('#tt').tabs('getTabIndex', tab)
+                    //关闭当前tab
+                    $('#tt').tabs('close', index);
+                    //获取关闭后的当前tab
+                    var tab1 = $('#tt').tabs('getSelected');
+                    //刷新
+                    tab1.panel('refresh');
+                }
+            }
+        });
+    }
+</script>

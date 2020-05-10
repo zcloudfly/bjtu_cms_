@@ -1,0 +1,105 @@
+<table id="ctgrList" class="easyui-datagrid" style="width:798px;height:610px"
+        data-options="url:'../getCategory', rownumbers:true,fitColumns:true,singleSelect:true">
+    <thead>
+        <tr>
+            <th data-options="field:'id',hidden:true,width:100">ID</th>
+            <th data-options="field:'type_name',width:100">栏目名称</th>
+            <th data-options="field:'type',width:100">栏目代码</th>
+            <th data-options="field:'ctime',width:100">创建时间</th>
+
+        </tr>
+    </thead>
+</table>
+
+<div id="ctb" style="">
+    <a onclick="toeditCategory()" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">编辑</a>
+    <a onclick="tosaveCategory()" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">添加</a>
+    <a onclick="deleteCategoryBykey();" class="easyui-linkbutton" data-options="iconCls:'icon-cut',plain:true">删除</a>
+
+</div>
+<div id="dialog"></div>
+
+
+
+<script>
+    $('#ctgrList').datagrid({
+        toolbar: '#ctb',
+    });
+    function showDialog(url,title) {
+         $('#dialog').dialog({
+        title: title,
+        width: 400,
+        height: 150,
+        closed: false,
+        cache: false,
+        href: url,//'../toEditCategory?id='+id,
+        modal: true,
+        buttons:[{
+				text:'保存',
+				handler:function(){
+                    saveCategory();
+                }
+			},{
+				text:'关闭',
+				handler:function(){
+				    $('#dialog').dialog('close');
+                }
+			}]
+
+    });
+    }
+    //添加dialog
+    function tosaveCategory() {
+       showDialog('../toEditCategory','添加');
+    }
+    //编辑dialog
+    function toeditCategory() {
+        var row=$('#ctgrList').datagrid('getSelected');
+        if(row){
+             id=row.id;
+             showDialog('../toEditCategory?id='+id,'修改');
+        }else{
+            $.messager.alert('提醒','请选择一行！');
+        }
+    }
+    //保存
+    function saveCategory() {
+         $('#categoryForm').form('submit',{
+            success:function(data){
+                data=JSON.parse(data);
+                 $.messager.alert('提示',data.msg);
+                if(data.status=='OK'){
+                     $('#dialog').dialog('close');
+                     $('#ctgrList').datagrid('reload')
+                }
+            }
+        });
+    }
+    //删除
+    function deleteCategoryBykey(){
+         var row=$('#ctgrList').datagrid('getSelected');
+         if(row){
+             $.messager.confirm('确认','您确认想要删除记录吗？',function(r){
+                if (r){
+                     id=row.id;
+                     $.ajax({
+                         url:'../deleteCategoryBykey',
+                         type:'GET',
+                         data:{'id':id},
+                         dataType:'json',
+                         success: function(ret){
+                             if(ret.status=='OK'){
+                                  $.messager.alert('提醒',ret.msg);
+                                  $('#ctgrList').datagrid('reload')
+                             }else{
+                                 $.messager.alert('提醒','删除失败');
+                             }
+                         }
+                     });
+                     }
+             });
+        }else{
+            $.messager.alert('提醒','请选择一行！');
+        }
+    }
+</script>
